@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -79,8 +80,9 @@ namespace sql2excel
 
                 //Load the datatable into the sheet, starting from cell A1. Print the column names on row 1
                 ws.Cells["A1"].LoadFromDataTable(dt, true);
-                ws.Cells[colums].AutoFitColumns();
                 ws.Cells[colums].AutoFilter = true;
+                ws.Cells[1,1,dt.Rows.Count+1, dt.Columns.Count+1].AutoFitColumns();
+
 
                 var dateColumns = from DataColumn d in dt.Columns
                                   where d.DataType == typeof(DateTime) || d.ColumnName.Contains("Date")
@@ -88,17 +90,16 @@ namespace sql2excel
 
                 foreach (var dc in dateColumns)
                 {
-                    ws.Cells[2, dc, dt.Rows.Count + 2, dc].Style.Numberformat.Format = "yyyy-mm-dd hh:mm:ss";
+                    ws.Cells[2, dc, dt.Rows.Count + 1, dc].Style.Numberformat.Format = "yyyy-mm-dd hh:mm:ss";
                 }
-                //ws.Cells["A21"].Style.Numberformat.Format = "mm-dd-yy h:mm";//or m/d/yy h:mm
 
-                //Format the header for column 1-3
+                //Format the header for column 
                 using (ExcelRange rng = ws.Cells[colums])
                 {
                     rng.Style.Font.Bold = true;
                     rng.Style.Fill.PatternType = ExcelFillStyle.Solid;
-                    //rng.Style.Fill.BackgroundColor.SetColor(Color.FromArgb(79, 129, 189));  //Set color to dark blue
-                    //rng.Style.Font.Color.SetColor(Color.White);
+                    rng.Style.Fill.BackgroundColor.SetColor(Color.White);  //Set color to dark blue
+                    rng.Style.Font.Color.SetColor(Color.Black);
                 }
 
                 package.Save();
